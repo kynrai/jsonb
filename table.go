@@ -51,6 +51,7 @@ const sqlFind = `
 SELECT attrs FROM %s %s;
 `
 
+// Find applies a filter and returns rows
 func (t *Table) Find(ctx context.Context, filter F) (pgx.Rows, error) {
 	where, err := filter.Where()
 	if err != nil {
@@ -63,6 +64,7 @@ const sqlUpdateByID = `
 UPDATE %s SET attrs = $2 WHERE id = $1;
 `
 
+// UpdateByID updates a doc with the given ID, this does a full replace of the existing document
 func (t *Table) UpdateByID(ctx context.Context, id string, doc interface{}) (pgconn.CommandTag, error) {
 	return t.pg.Exec(ctx, fmt.Sprintf(sqlUpdateByID, t.name), id, doc)
 }
@@ -71,6 +73,7 @@ const sqlDeleteByID = `
 DELETE from %s WHERE id = $1;
 `
 
+// DeleteByID deletes a document with the given ID
 func (t *Table) DeleteByID(ctx context.Context, id string) (pgconn.CommandTag, error) {
 	return t.pg.Exec(ctx, fmt.Sprintf(sqlDeleteByID, t.name), id)
 }
@@ -92,6 +95,7 @@ const sqlCount = `
 SELECT count(*) AS count FROM %s %s;
 `
 
+// CountDocuments applies a fitler and counts the results, empty filter counts all documents
 func (t *Table) CountDocuments(ctx context.Context, filter F) (int, error) {
 	where, err := filter.Where()
 	if err != nil {
