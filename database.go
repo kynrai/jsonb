@@ -31,3 +31,7 @@ func (d *Database) NewTable(name string) *Table {
 		pg:   d.pg,
 	}
 }
+
+func (d *Database) Close() {
+	defer d.pg.Close()
+}
