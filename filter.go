@@ -25,6 +25,10 @@ func (f F) Map() map[string]interface{} {
 
 // Where generate the where clause of the SQL statement
 func (f F) Where() (string, error) {
+	if len(f) == 0 {
+		return "", nil
+	}
+
 	clause := []string{}
 	m := f.Map()
 	for key, val := range m {

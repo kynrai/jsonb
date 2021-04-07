@@ -37,10 +37,6 @@ func (t *Table) InsertByID(ctx context.Context, id string, doc interface{}) (pgc
 	return t.pg.Exec(ctx, fmt.Sprintf(sqlInsertByID, t.name), id, doc)
 }
 
-func (t *Table) InsertMany(ctx context.Context) error {
-	return nil
-}
-
 const sqlFindByID = `
 SELECT attrs FROM %s WHERE id = $1;
 `
@@ -49,10 +45,6 @@ SELECT attrs FROM %s WHERE id = $1;
 // v must be a pointer to a struct which represents the document being returned
 func (t *Table) FindByID(ctx context.Context, id string, v interface{}) error {
 	return t.pg.QueryRow(ctx, fmt.Sprintf(sqlFindByID, t.name), id).Scan(v)
-}
-
-func (t *Table) FindOne(ctx context.Context) error {
-	return nil
 }
 
 const sqlFind = `
@@ -67,22 +59,44 @@ func (t *Table) Find(ctx context.Context, filter F) (pgx.Rows, error) {
 	return t.pg.Query(ctx, fmt.Sprintf(sqlFind, t.name, where))
 }
 
-func (t *Table) UpdateByID(ctx context.Context) error {
-	return nil
+const sqlUpdateByID = `
+UPDATE %s SET attrs = $2 WHERE id = $1;
+`
+
+func (t *Table) UpdateByID(ctx context.Context, id string, doc interface{}) (pgconn.CommandTag, error) {
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlUpdateByID, t.name), id, doc)
 }
 
-func (t *Table) UpdateMany(ctx context.Context) error {
-	return nil
+const sqlDeleteByID = `
+DELETE from %s WHERE id = $1;
+`
+
+func (t *Table) DeleteByID(ctx context.Context, id string) (pgconn.CommandTag, error) {
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlDeleteByID, t.name), id)
 }
 
-func (t *Table) DeleteOne(ctx context.Context) error {
-	return nil
+const sqlDelete = `
+DELETE from %s %s;
+`
+
+// DeleteMany documents by a filter, empty filter deletes all documents
+func (t *Table) DeleteMany(ctx context.Context, filter F) (pgconn.CommandTag, error) {
+	where, err := filter.Where()
+	if err != nil {
+		return nil, err
+	}
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlDelete, t.name, where))
 }
 
-func (t *Table) DeleteMany(ctx context.Context) error {
-	return nil
-}
+const sqlCount = `
+SELECT count(*) AS count FROM %s %s;
+`
 
-func (t *Table) CountDocuments(ctx context.Context) error {
-	return nil
+func (t *Table) CountDocuments(ctx context.Context, filter F) (int, error) {
+	where, err := filter.Where()
+	if err != nil {
+		return 0, err
+	}
+	var count int
+	return count, t.pg.QueryRow(ctx, fmt.Sprintf(sqlCount, t.name, where)).Scan(&count)
 }
