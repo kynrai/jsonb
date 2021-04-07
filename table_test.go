@@ -156,6 +156,39 @@ func TestInsertAndFind(t *testing.T) {
 	}
 }
 
+func TestUpdateByID(t *testing.T) {
+	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	ctx := context.Background()
+	db, err := jsonb.NewDatabase(ctx, uri)
+	if err != nil {
+		t.Fatalf("failed to create database: %v", err)
+	}
+	table := db.NewTable("test")
+	_, err = table.Create(ctx)
+	if err != nil {
+		t.Fatalf("failed to create table: %v", err)
+	}
+	table.DeleteMany(ctx, jsonb.F{})
+
+	doc1 := Doc{ID: uuid.NewString(), Name: "tester1"}
+	_, err = table.InsertByID(ctx, doc1.ID, doc1)
+	assert.Nil(t, err)
+
+	var resp Doc
+	err = table.FindByID(ctx, doc1.ID, &resp)
+	assert.Nil(t, err)
+
+	resp.Name = "tester-updated"
+	_, err = table.UpdateByID(ctx, resp.ID, resp)
+	assert.Nil(t, err)
+
+	var resp2 Doc
+	err = table.FindByID(ctx, doc1.ID, &resp2)
+	assert.Nil(t, err)
+
+	assert.Equal(t, resp, resp2)
+}
+
 func TestDeleteByID(t *testing.T) {
 	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
 	ctx := context.Background()
