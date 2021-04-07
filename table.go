@@ -52,10 +52,13 @@ SELECT attrs FROM %s %s;
 `
 
 // Find applies a filter and returns rows
-func (t *Table) Find(ctx context.Context, filter F) (pgx.Rows, error) {
+func (t *Table) Find(ctx context.Context, filter F, opts ...FilterOption) (pgx.Rows, error) {
 	where, err := filter.Where()
 	if err != nil {
 		return nil, err
+	}
+	for _, opt := range opts {
+		where += " " + opt(&filter)
 	}
 	return t.pg.Query(ctx, fmt.Sprintf(sqlFind, t.name, where))
 }

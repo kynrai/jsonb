@@ -52,3 +52,17 @@ func (f F) Where() (string, error) {
 	}
 	return fmt.Sprint("WHERE ", strings.Join(clause, " AND ")), nil
 }
+
+type FilterOption func(*F) string
+
+func Limit(limit int) FilterOption {
+	return func(*F) string {
+		return fmt.Sprintf("LIMIT %d", limit)
+	}
+}
+
+func Offset(offset int) FilterOption {
+	return func(*F) string {
+		return fmt.Sprintf("OFFSET %d", offset)
+	}
+}

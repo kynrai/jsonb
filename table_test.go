@@ -92,6 +92,7 @@ func TestInsertAndFind(t *testing.T) {
 		name     string
 		filter   jsonb.F
 		expected []*Doc
+		opts     []jsonb.FilterOption
 	}{
 		{
 			name: "find both tester1",
@@ -136,9 +137,21 @@ func TestInsertAndFind(t *testing.T) {
 			filter:   jsonb.F{},
 			expected: []*Doc{doc1, doc2, doc3, doc4, doc5},
 		},
+		{
+			name:     "find everything limit 2",
+			filter:   jsonb.F{},
+			opts:     []jsonb.FilterOption{jsonb.Limit(2)},
+			expected: []*Doc{doc1, doc2},
+		},
+		{
+			name:     "find everything limit 2 offset 2",
+			filter:   jsonb.F{},
+			opts:     []jsonb.FilterOption{jsonb.Limit(2), jsonb.Offset(2)},
+			expected: []*Doc{doc3, doc4},
+		},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
-			rows, err := table.Find(ctx, tc.filter)
+			rows, err := table.Find(ctx, tc.filter, tc.opts...)
 			assert.Nil(t, err)
 			resp := []*Doc{}
 			err = jsonb.DecodeRows(rows, &resp)
