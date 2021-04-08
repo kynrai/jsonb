@@ -46,6 +46,23 @@ func (t *Table) InsertByID(ctx context.Context, id string, doc interface{}) (pgc
 	return t.pg.Exec(ctx, fmt.Sprintf(sqlInsertByID, t.name), id, doc)
 }
 
+const sqlInsertMany = `
+INSERT INTO %s (id,attrs) VALUES %s;
+`
+
+// InsertMany documents into the table
+func (t *Table) InsertMany(ctx context.Context, docs Docs) (pgconn.CommandTag, error) {
+	valStr, err := docs.Values()
+	if err != nil {
+		return nil, err
+	}
+	tx := TxFromContext(ctx)
+	if tx != nil {
+		return tx.Exec(ctx, fmt.Sprintf(sqlInsertMany, t.name, valStr))
+	}
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlInsertMany, t.name, valStr))
+}
+
 const sqlFindByID = `
 SELECT attrs FROM %s WHERE id = $1;
 `

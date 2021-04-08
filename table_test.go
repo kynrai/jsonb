@@ -284,3 +284,59 @@ func TestCount(t *testing.T) {
 	})
 
 }
+
+func TestInsertMany(t *testing.T) {
+	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	ctx := context.Background()
+	db, err := jsonb.NewDatabase(ctx, uri)
+	if err != nil {
+		t.Fatalf("failed to create database: %v", err)
+	}
+	table := db.Table("test_bulk")
+	_, err = table.Create(ctx)
+	if err != nil {
+		t.Fatalf("failed to create table: %v", err)
+	}
+	table.DeleteMany(ctx, jsonb.F{})
+
+	doc1 := &Doc{ID: uuid.NewString(), Name: "tester1", Age: 10, Location: "UK"}
+	doc2 := &Doc{ID: uuid.NewString(), Name: "tester2", Age: 20, Location: "US"}
+	doc3 := &Doc{ID: uuid.NewString(), Name: "tester3", Age: 30, Location: "FR"}
+	doc4 := &Doc{ID: uuid.NewString(), Name: "tester5", Age: 40, Location: "DE"}
+	doc5 := &Doc{ID: uuid.NewString(), Name: "tester1", Age: 40, Location: "DE"}
+
+	docs := jsonb.Docs{
+		{ID: doc1.ID, Attrs: doc1},
+		{ID: doc2.ID, Attrs: doc2},
+		{ID: doc3.ID, Attrs: doc3},
+		{ID: doc4.ID, Attrs: doc4},
+		{ID: doc5.ID, Attrs: doc5},
+	}
+	_, err = table.InsertMany(ctx, docs)
+	assert.Nil(t, err)
+
+	t.Run("count everything", func(t *testing.T) {
+		count, err := table.CountDocuments(ctx, jsonb.F{})
+		assert.Nil(t, err)
+		assert.Equal(t, 5, count)
+	})
+
+	t.Run("count tester1s", func(t *testing.T) {
+		count, err := table.CountDocuments(ctx, jsonb.F{
+			{"name", "tester1"},
+		})
+		assert.Nil(t, err)
+		assert.Equal(t, 2, count)
+	})
+
+	t.Run("count filter", func(t *testing.T) {
+		count, err := table.CountDocuments(ctx, jsonb.F{
+			{"name", "tester1"},
+			{"age", []int{10, 20}},
+			{"location", []string{"UK", "DE"}},
+		})
+		assert.Nil(t, err)
+		assert.Equal(t, 1, count)
+	})
+
+}
