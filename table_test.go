@@ -24,7 +24,7 @@ func TestInsertAndFindByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create database: %v", err)
 	}
-	table := db.NewTable("test")
+	table := db.Table("test")
 	_, err = table.Create(ctx)
 	if err != nil {
 		t.Fatalf("failed to create table: %v", err)
@@ -69,7 +69,7 @@ func TestInsertAndFind(t *testing.T) {
 		t.Fatalf("failed to create database: %v", err)
 	}
 
-	table := db.NewTable("test")
+	table := db.Table("test")
 	_, err = table.Create(ctx)
 	if err != nil {
 		t.Fatalf("failed to create table: %v", err)
@@ -176,7 +176,7 @@ func TestUpdateByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create database: %v", err)
 	}
-	table := db.NewTable("test")
+	table := db.Table("test")
 	_, err = table.Create(ctx)
 	if err != nil {
 		t.Fatalf("failed to create table: %v", err)
@@ -209,7 +209,7 @@ func TestDeleteByID(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create database: %v", err)
 	}
-	table := db.NewTable("test")
+	table := db.Table("test")
 	_, err = table.Create(ctx)
 	if err != nil {
 		t.Fatalf("failed to create table: %v", err)
@@ -240,7 +240,7 @@ func TestCount(t *testing.T) {
 	if err != nil {
 		t.Fatalf("failed to create database: %v", err)
 	}
-	table := db.NewTable("test")
+	table := db.Table("test")
 	_, err = table.Create(ctx)
 	if err != nil {
 		t.Fatalf("failed to create table: %v", err)

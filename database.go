@@ -3,6 +3,7 @@ package jsonb
 import (
 	"context"
 
+	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
@@ -25,11 +26,16 @@ func NewDatabase(ctx context.Context, uri string) (*Database, error) {
 	return d, nil
 }
 
-func (d *Database) NewTable(name string) *Table {
+func (d *Database) Table(name string) *Table {
 	return &Table{
 		name: name,
 		pg:   d.pg,
 	}
+}
+
+// Tx returns a new transaction from the DB connection
+func (d *Database) Tx(ctx context.Context) (pgx.Tx, error) {
+	return d.pg.Begin(ctx)
 }
 
 func (d *Database) Close() {
