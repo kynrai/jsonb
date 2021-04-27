@@ -33,6 +33,11 @@ func (d *Database) Table(name string) *Table {
 	}
 }
 
+// DB returns the underlying pool of connections to use the DB directly
+func (d *Database) DB() *pgxpool.Pool {
+	return d.pg
+}
+
 // Tx returns a new transaction from the DB connection
 func (d *Database) Tx(ctx context.Context) (pgx.Tx, error) {
 	return d.pg.Begin(ctx)

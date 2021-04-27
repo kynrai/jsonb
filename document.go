@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
+	"time"
 )
 
 type Doc struct {
@@ -20,7 +21,7 @@ func (d Docs) Values() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		elems = append(elems, fmt.Sprintf("('%s','%s'::jsonb)", doc.ID, string(b)))
+		elems = append(elems, fmt.Sprintf("('%s','%s'::jsonb, '%s')", doc.ID, string(b), time.Now().UTC().Format("2006-01-02 15:04:05-00")))
 	}
 	return strings.Join(elems, ","), nil
 }

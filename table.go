@@ -3,6 +3,7 @@ package jsonb
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgconn"
 	"github.com/jackc/pgx/v4"
@@ -17,7 +18,8 @@ type Table struct {
 const sqlCreateTable = `
 CREATE TABLE IF NOT EXISTS %[1]s (
     id UUID PRIMARY KEY,
-    attrs JSONB
+    attrs JSONB,
+	updatedAt TIMESTAMPTZ
 );
 -- Create an index on all key/value pairs in the JSONB column.
 CREATE INDEX IF NOT EXISTS idx_%[1]s_attrs ON %[1]s USING gin (attrs);
@@ -27,27 +29,26 @@ CREATE INDEX IF NOT EXISTS idx_%[1]s_attrs ON %[1]s USING gin (attrs);
 func (t *Table) Create(ctx context.Context) (pgconn.CommandTag, error) {
 	tx := TxFromContext(ctx)
 	if tx != nil {
-		fmt.Println("tx used")
 		return tx.Exec(ctx, fmt.Sprintf(sqlCreateTable, t.name))
 	}
 	return t.pg.Exec(ctx, fmt.Sprintf(sqlCreateTable, t.name))
 }
 
 const sqlInsertByID = `
-INSERT INTO %s (id,attrs) VALUES ($1,$2);
+INSERT INTO %s (id,attrs,updatedAt) VALUES ($1,$2,$3);
 `
 
 // InsertByID document into the table with the given ID
 func (t *Table) InsertByID(ctx context.Context, id string, doc interface{}) (pgconn.CommandTag, error) {
 	tx := TxFromContext(ctx)
 	if tx != nil {
-		return tx.Exec(ctx, fmt.Sprintf(sqlInsertByID, t.name), id, doc)
+		return tx.Exec(ctx, fmt.Sprintf(sqlInsertByID, t.name), id, doc, time.Now().UTC())
 	}
-	return t.pg.Exec(ctx, fmt.Sprintf(sqlInsertByID, t.name), id, doc)
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlInsertByID, t.name), id, doc, time.Now().UTC())
 }
 
 const sqlInsertMany = `
-INSERT INTO %s (id,attrs) VALUES %s;
+INSERT INTO %s (id,attrs,updatedAt) VALUES %s;
 `
 
 // InsertMany documents into the table

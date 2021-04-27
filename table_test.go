@@ -18,7 +18,7 @@ type Doc struct {
 }
 
 func TestInsertAndFindByID(t *testing.T) {
-	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	uri := "postgresql://user:password@localhost:5432/jsonb?sslmode=disable"
 	ctx := context.Background()
 	db, err := jsonb.NewDatabase(ctx, uri)
 	if err != nil {
@@ -62,7 +62,7 @@ func TestInsertAndFindByID(t *testing.T) {
 }
 
 func TestInsertAndFind(t *testing.T) {
-	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	uri := "postgresql://user:password@localhost:5432/jsonb?sslmode=disable"
 	ctx := context.Background()
 	db, err := jsonb.NewDatabase(ctx, uri)
 	if err != nil {
@@ -170,7 +170,7 @@ func TestInsertAndFind(t *testing.T) {
 }
 
 func TestUpdateByID(t *testing.T) {
-	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	uri := "postgresql://user:password@localhost:5432/jsonb?sslmode=disable"
 	ctx := context.Background()
 	db, err := jsonb.NewDatabase(ctx, uri)
 	if err != nil {
@@ -203,7 +203,7 @@ func TestUpdateByID(t *testing.T) {
 }
 
 func TestDeleteByID(t *testing.T) {
-	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	uri := "postgresql://user:password@localhost:5432/jsonb?sslmode=disable"
 	ctx := context.Background()
 	db, err := jsonb.NewDatabase(ctx, uri)
 	if err != nil {
@@ -234,7 +234,7 @@ func TestDeleteByID(t *testing.T) {
 }
 
 func TestCount(t *testing.T) {
-	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	uri := "postgresql://user:password@localhost:5432/jsonb?sslmode=disable"
 	ctx := context.Background()
 	db, err := jsonb.NewDatabase(ctx, uri)
 	if err != nil {
@@ -286,7 +286,7 @@ func TestCount(t *testing.T) {
 }
 
 func TestInsertMany(t *testing.T) {
-	uri := "postgresql://user:password@localhost:5432/ams?sslmode=disable"
+	uri := "postgresql://user:password@localhost:5432/jsonb?sslmode=disable"
 	ctx := context.Background()
 	db, err := jsonb.NewDatabase(ctx, uri)
 	if err != nil {
