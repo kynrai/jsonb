@@ -99,16 +99,16 @@ func (t *Table) Find(ctx context.Context, filter F, opts ...FilterOption) (pgx.R
 }
 
 const sqlUpdateByID = `
-UPDATE %s SET attrs = $2 WHERE id = $1;
+UPDATE %s SET attrs = $2, updatedAt = $3 WHERE id = $1;
 `
 
 // UpdateByID updates a doc with the given ID, this does a full replace of the existing document
 func (t *Table) UpdateByID(ctx context.Context, id string, doc interface{}) (pgconn.CommandTag, error) {
 	tx := TxFromContext(ctx)
 	if tx != nil {
-		return tx.Exec(ctx, fmt.Sprintf(sqlUpdateByID, t.name), id, doc)
+		return tx.Exec(ctx, fmt.Sprintf(sqlUpdateByID, t.name), id, doc, time.Now().UTC())
 	}
-	return t.pg.Exec(ctx, fmt.Sprintf(sqlUpdateByID, t.name), id, doc)
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlUpdateByID, t.name), id, doc, time.Now().UTC())
 }
 
 const sqlDeleteByID = `
