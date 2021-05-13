@@ -10,14 +10,22 @@ import (
 	"github.com/jackc/pgx/v4/pgxpool"
 )
 
+type PKType string
+
+const (
+	PK_UUID PKType = "UUID"
+	PK_TEXT PKType = "TEXT"
+)
+
 type Table struct {
-	name string
-	pg   *pgxpool.Pool
+	PKType PKType
+	name   string
+	pg     *pgxpool.Pool
 }
 
 const sqlCreateTable = `
 CREATE TABLE IF NOT EXISTS %[1]s (
-    id UUID PRIMARY KEY,
+    id %[2]s PRIMARY KEY,
     attrs JSONB,
 	updatedAt TIMESTAMPTZ
 );
@@ -28,10 +36,13 @@ CREATE INDEX IF NOT EXISTS idx_%[1]s_attrs ON %[1]s USING gin (attrs);
 // Create the table if it does not already exist
 func (t *Table) Create(ctx context.Context) (pgconn.CommandTag, error) {
 	tx := TxFromContext(ctx)
-	if tx != nil {
-		return tx.Exec(ctx, fmt.Sprintf(sqlCreateTable, t.name))
+	if t.PKType == "" {
+		t.PKType = PK_UUID
 	}
-	return t.pg.Exec(ctx, fmt.Sprintf(sqlCreateTable, t.name))
+	if tx != nil {
+		return tx.Exec(ctx, fmt.Sprintf(sqlCreateTable, t.name, t.PKType))
+	}
+	return t.pg.Exec(ctx, fmt.Sprintf(sqlCreateTable, t.name, t.PKType))
 }
 
 const sqlInsertByID = `
